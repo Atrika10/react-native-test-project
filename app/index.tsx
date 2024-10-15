@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { FontAwesome } from "react-native-vector-icons/FontAwesome";
 import { Entypo } from "react-native-vector-icons/FontAwesome";
 import React from "react";
@@ -6,6 +6,8 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import chatList from "@/utils/chatList";
 
 const Index = () => {
+  const pinnedChat = chatList.filter(chat => chat.isPinned);
+  const conversationChat = chatList.filter(chat =>  !chat.isPinned);
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
@@ -66,8 +68,6 @@ const Index = () => {
           console.log(JSON.stringify(item, null, 2));
         })}
 
-        
-
         <View style={styles.allChatBox}>
           {/* bottom container second div for pinned chat */}
           <View style={styles.pinnedChatBox}>
@@ -77,51 +77,94 @@ const Index = () => {
               <Text style={{ color: "gray", fontWeight: "bold" }}> Pinned</Text>
             </View>
 
-            {/*map each chat details */}
-            {chatList &&
-          chatList.map((item, index) => {
-            return (
-              <View key={index}>
-                {/* Your chat item elements */}
-                <View style={styles.chatDetails}>
-              {/* images & status */}
-              <View style={styles.chatDetailsLeftHalf}>
-                <Image
-                  style={styles.chatProfileImg}
-                  source={require("@/assets/images/profileIMG.jpg")}
-                />
-
-                {/* story status */}
-                <View style={styles.storyStatus}></View>
-                {/* status green if person is online */}
-                <Text style={styles.greenCircle}></Text>
-              </View>
-
-              <View style={styles.chatDetailsRightHalf}>
-                {/* name & msg */}
+            <FlatList
+              data={pinnedChat}
+              renderItem={({ item, index }) => (
                 <View>
-                  <Text style={styles.chatName}>Name</Text>
-                  <Text>Wanna Lunch with me?</Text>
-                </View>
+                  <View style={styles.chatDetails}>
+                      {/* images & status */}
+                      <View style={styles.chatDetailsLeftHalf}>
+                        <Image
+                          style={styles.chatProfileImg}
+                          source={require("@/assets/images/profileIMG.jpg")}
+                        />
 
-                {/* time & noOfMsg */}
-                <View style={styles.chatTimeBox}>
-                  <Text style={{ fontSize: 12, fontWeight: "500" }}>
-                    2:41 AM
-                  </Text>
-                  <Text style={styles.noOfMsg}>2</Text>
+                        {/* story status */}
+                        <View style={styles.storyStatus}></View>
+                        {/* status green if person is online */}
+
+                        {item.status === "online" && <Text style={styles.greenCircle}></Text>}
+                        
+                      </View>
+
+                      <View style={styles.chatDetailsRightHalf}>
+                        {/* name & msg */}
+                        <View>
+                          <Text style={styles.chatName}>{item.name}</Text>
+                          <Text>{item.message}</Text>
+                        </View>
+
+                        {/* time & noOfMsg */}
+                        <View style={styles.chatTimeBox}>
+                          <Text style={{ fontSize: 12, fontWeight: "500" }}>
+                            {item.time}
+                          </Text>
+                          <Text style={styles.noOfMsg}>{item.numberOfMsg}</Text>
+                        </View>
+                      </View>
+                  </View>
                 </View>
-              </View>
-            </View>
-              </View>
-            );
-          })} 
-            
+              )}
+            />
           </View>
 
+          {/* container for conversation chat */}
+          <View>
+              <View style={styles.pinnedChatBoxHeading}>
+              <Text style={{ color: "gray", fontWeight: "bold", marginTop : 15 }}> Conversation</Text>
+            </View>
+
+            <FlatList 
+             data={conversationChat}
+             renderItem={({item, index}) => (
+              <View>
+                <View style={styles.chatDetails}>
+                      {/* images & status */}
+                      <View style={styles.chatDetailsLeftHalf}>
+                        <Image
+                          style={styles.chatProfileImg}
+                          source={require("@/assets/images/profileIMG.jpg")}
+                        />
+
+                        {/* story status */}
+                        <View style={styles.storyStatus}></View>
+                        {/* status green if person is online */}
+                        {item.status === "online" && <Text style={styles.greenCircle}></Text>}
+                      </View>
+
+                      <View style={styles.chatDetailsRightHalf}>
+                        {/* name & msg */}
+                        <View>
+                          <Text style={styles.chatName}>{item.name}</Text>
+                          <Text>{item.message}</Text>
+                        </View>
+
+                        {/* time & noOfMsg */}
+                        <View style={styles.chatTimeBox}>
+                          <Text style={{ fontSize: 12, fontWeight: "500" }}>
+                            {item.time}
+                          </Text>
+                          {item.numberOfMsg > 0 && <Text style={styles.noOfMsg}>{item.numberOfMsg}</Text>}
+                          
+                        </View>
+                      </View>
+                  </View>
+              </View>
+             )}/>
+          </View>
         </View>
-          {/* bottom container third div for conversation chat */}
-          <View style={styles.conversationChatBox}></View>
+        {/* bottom container third div for conversation chat */}
+        <View style={styles.conversationChatBox}></View>
       </View>
     </View>
   );
@@ -210,10 +253,11 @@ const styles = StyleSheet.create({
   },
   chatDetailsLeftHalf: {},
   chatDetailsRightHalf: {
+    width : "75%",
     // backgroundColor : "red",
     paddingBottom: 30,
     flexDirection: "row",
-    gap: 90,
+    justifyContent : "space-between",
     borderBottomWidth: 1,
     borderBottomColor: "rgba(25,31,52, 0.2)",
   },
